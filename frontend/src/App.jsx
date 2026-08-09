@@ -8,6 +8,8 @@ import Insights from './components/Insights';
 import OnboardingModal from './components/OnboardingModal';
 import UpdateWalletModal from './components/UpdateWalletModal';
 import QuickPaymentModal from './components/QuickPaymentModal';
+import AuthModal from './components/AuthModal';
+import ProfileModal from './components/ProfileModal';
 
 import { 
   fetchSummary, 
@@ -29,9 +31,29 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [theme, setTheme] = useState('dark');
   const [loading, setLoading] = useState(true);
+
+  // Modals States
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showUpdateWallet, setShowUpdateWallet] = useState(false);
   const [showQuickPayment, setShowQuickPayment] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+
+  // User State
+  const [currentUser, setCurrentUser] = useState(() => {
+    const saved = localStorage.getItem('fp_user');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    // Default demo user
+    return {
+      name: 'Alok Raj',
+      email: 'alok.raj@financepulse.in',
+      avatar: '👨‍💻',
+      currency: 'INR (₹)',
+      memberSince: 'August 2026'
+    };
+  });
 
   const [summary, setSummary] = useState({
     totalBalance: 0,
@@ -92,6 +114,22 @@ export default function App() {
       setShowOnboarding(true);
     }
   }, [filters]);
+
+  const handleLogin = (userObj) => {
+    setCurrentUser(userObj);
+    localStorage.setItem('fp_user', JSON.stringify(userObj));
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    localStorage.removeItem('fp_user');
+    setShowProfileModal(false);
+  };
+
+  const handleUpdateProfile = (updatedUser) => {
+    setCurrentUser(updatedUser);
+    localStorage.setItem('fp_user', JSON.stringify(updatedUser));
+  };
 
   const handleSaveInitialBudget = async ({ totalIncome, totalBudget, allocations }) => {
     try {
@@ -176,8 +214,11 @@ export default function App() {
         setActiveTab={setActiveTab} 
         theme={theme} 
         toggleTheme={toggleTheme}
+        user={currentUser}
         onOpenAddTx={() => setShowQuickPayment(true)}
         onOpenOnboarding={() => setShowOnboarding(true)}
+        onOpenAuth={() => setShowAuthModal(true)}
+        onOpenProfile={() => setShowProfileModal(true)}
       />
 
       <main className="main-content">
@@ -283,6 +324,25 @@ export default function App() {
           categories={categories}
           onAddTransaction={handleAddTransaction}
           onClose={() => setShowQuickPayment(false)}
+        />
+      )}
+
+      {/* Login & Sign Up Auth Modal */}
+      {showAuthModal && (
+        <AuthModal 
+          onLogin={handleLogin}
+          onClose={() => setShowAuthModal(false)}
+        />
+      )}
+
+      {/* User Profile Modal */}
+      {showProfileModal && (
+        <ProfileModal 
+          user={currentUser}
+          summary={summary}
+          onUpdateProfile={handleUpdateProfile}
+          onLogout={handleLogout}
+          onClose={() => setShowProfileModal(false)}
         />
       )}
     </div>

@@ -9,10 +9,12 @@ import {
   Sun, 
   Moon, 
   Plus,
-  Sliders
+  Sliders,
+  User,
+  LogIn
 } from 'lucide-react';
 
-export default function Navbar({ activeTab, setActiveTab, theme, toggleTheme, onOpenAddTx, onOpenOnboarding }) {
+export default function Navbar({ activeTab, setActiveTab, theme, toggleTheme, user, onOpenAddTx, onOpenOnboarding, onOpenAuth, onOpenProfile }) {
   return (
     <nav className="navbar">
       <div className="brand">
@@ -77,6 +79,35 @@ export default function Navbar({ activeTab, setActiveTab, theme, toggleTheme, on
         <button className="btn btn-secondary btn-sm" onClick={toggleTheme} title="Toggle theme">
           {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
         </button>
+
+        {/* User Profile / Auth Button */}
+        {user ? (
+          <button 
+            className="btn btn-secondary btn-sm" 
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '6px',
+              padding: '4px 10px',
+              border: '1px solid var(--accent-color)',
+              background: 'rgba(99, 102, 241, 0.15)'
+            }}
+            onClick={onOpenProfile}
+            title="View Profile & Settings"
+          >
+            <span style={{ fontSize: '1.2rem' }}>{user.avatar || '👨‍💻'}</span>
+            <span style={{ fontWeight: '600', fontSize: '0.85rem' }}>{user.name.split(' ')[0]}</span>
+          </button>
+        ) : (
+          <button 
+            className="btn btn-secondary btn-sm"
+            onClick={onOpenAuth}
+            title="Log In / Sign Up"
+          >
+            <LogIn size={16} />
+            <span style={{ fontSize: '0.82rem' }}>Log In</span>
+          </button>
+        )}
 
         <button className="btn btn-primary" onClick={onOpenAddTx}>
           <Plus size={18} />
